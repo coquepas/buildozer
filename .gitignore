@@ -1,33 +1,52 @@
-*.py[co]
+# Directories and files that cannot be commited to git
 
-# Packages
-.*.swp
-.*.swo
-*.egg
-*.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
+# Editors
 .idea
+.vscode
+*.swp
 
-# Installer logs
-pip-log.txt
+# Byte-compiled
+__pycache__
+*.py[cod]
+*$py.class
 
-# Unit test / coverage reports
-.coverage
-.tox
-
-#Translations
-*.mo
-
-#Mr Developer
-.mr.developer.cfg
+# Distribution / packaging
+.Python
+lib
+lib64
+parts
+sdist
+var
+wheels
+pip-wheel-metadata
+share/python-wheels
+develop-eggs
+eggs
+.eggs
+*.egg-info
+*.egg
 MANIFEST
+.installed.cfg
+downloads
+build
+dist
+bin
+.buildozer
 
-release\.log\.utf-8\.tmp
+# Logs
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Environments
+venv
+.venv
+env
+.env
+.python-version
+
+#  Temp / Cache
+cache
+.cache
+temp
+.temp
