@@ -1083,6 +1083,7 @@ class ToolchainCL:
             env["ANDROID_NDK_HOME"] = self.ctx.ndk_dir
             env["ANDROID_HOME"] = self.ctx.sdk_dir
             ls = sh.Command('ls')
+            info('#___________________________________________________SOY COQUE___________________________________________')
             gradlew = sh.Command('./gradlew')
 
             if exists('/usr/bin/dos2unix'):
