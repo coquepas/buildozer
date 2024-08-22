@@ -158,6 +158,7 @@ public class PythonActivity extends Activity {
             String app_root_dir = getAppRoot();
 
             mWebView = new WebView(PythonActivity.mActivity);
+            mWebView.setOverScrollMode(2); //dealing with the bouncing effect
             mWebView.getSettings().setJavaScriptEnabled(true);
             mWebView.getSettings().setDomStorageEnabled(true);
             mWebView.loadUrl("file:///android_asset/_load.html");
@@ -198,7 +199,7 @@ public class PythonActivity extends Activity {
             PythonActivity.nativeSetenv("ANDROID_UNPACK", app_root_dir);
             PythonActivity.nativeSetenv("PYTHONHOME", app_root_dir);
             PythonActivity.nativeSetenv("PYTHONPATH", app_root_dir + ":" + app_root_dir + "/lib");
-            PythonActivity.nativeSetenv("PYTHONOPTIMIZE", "2");
+            //PythonActivity.nativeSetenv("PYTHONOPTIMIZE", "2");
 
             try {
                 Log.v(TAG, "Access to our meta-data...");
