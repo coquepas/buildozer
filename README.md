@@ -1,294 +1,124 @@
-# Buildozer action
-
-[![Build workflow](https://github.com/ArtemSBulgakov/buildozer-action/workflows/Build/badge.svg?branch=master)](https://github.com/ArtemSBulgakov/buildozer-action/actions?query=workflow%3ABuild)
-[![Build (with Buildozer master) workflow](<https://github.com/ArtemSBulgakov/buildozer-action/workflows/Build%20(with%20Buildozer%20master)/badge.svg?branch=master>)](https://github.com/ArtemSBulgakov/buildozer-action/actions?query=workflow%3A%22Build+%28with+Buildozer+master%29%22)
-
-Build your Python/[Kivy](https://github.com/kivy/kivy) applications for Android
-with [Buildozer](https://github.com/kivy/buildozer). This action uses official
-Buildozer [Docker image](https://github.com/kivy/buildozer/blob/master/Dockerfile),
-but adds some features and patches to use in GitHub Actions.
-
-## Full workflow
-
-Full workflow with uploading binaries as artifact.
-
-```yaml
-name: Build
-on: [push, pull_request]
-
-jobs:
-  # Build job. Builds app for Android with Buildozer
-  build-android:
-    name: Build for Android
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          workdir: test_app
-          buildozer_version: stable
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
-```
-
-<details>
-  <summary>Full workflow with uploading binaries to branch</summary>
-
-  Builds app and uploads to the `data` branch. Also copy
-  [.ci/move_binary.py](.ci/move_binary.py) script and create `data` branch as
-  described above.
-
-  ```yaml
-  name: Build
-  on:
-    push:
-      branches-ignore:
-        - data
-        - gh-pages
-      tags:
-        - '**'
-    pull_request:
-      branches-ignore:
-        - data
-        - gh-pages
-
-  jobs:
-    # Build job. Builds app for Android with Buildozer
-    build-android:
-      name: Build for Android
-      runs-on: ubuntu-latest
+# python-for-android
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-          with:
-            path: master
+python-for-android (p4a) is a development tool that packages Python apps into
+binaries that can run on Android devices.
 
-        - name: Build with Buildozer
-          uses: ArtemSBulgakov/buildozer-action@v1
-          id: buildozer
-          with:
-            repository_root: master
-            workdir: test_app
-            buildozer_version: stable
+It can generate: 
 
-        - name: Upload artifacts
-          uses: actions/upload-artifact@v2
-          with:
-            name: package
-            path: ${{ steps.buildozer.outputs.filename }}
+* [Android Package](https://en.wikipedia.org/wiki/Apk_(file_format)) (APK)
+  files, ready to install locally on a device, especially for testing. This format
+  is used by many [app stores](https://en.wikipedia.org/wiki/List_of_Android_app_stores)
+  but not [Google Play Store](https://play.google.com/store/). 
+* [Android App Bundle](https://developer.android.com/guide/app-bundle/faq) 
+  (AAB) files which can be shared on [Google Play Store](https://play.google.com/store/).
+* [Android Archive](https://developer.android.com/studio/projects/android-library)
+  (AAR) files which can be used as a re-usable bundle of resources for other 
+  projects.
+ 
+It supports multiple CPU architectures.
 
-        - name: Checkout
-          uses: actions/checkout@v2
-          with:
-            path: data
-            ref: data # Branch name
+It supports apps developed with [Kivy framework](http://kivy.org), but was
+built to be flexible about the backend libraries (through "bootstraps"), and 
+also supports [PySDL2](https://pypi.org/project/PySDL2/), and a
+[WebView](https://developer.android.com/reference/android/webkit/WebView) with
+a Python web server.
 
-        - name: Set up Python
-          uses: actions/setup-python@v2
-          with:
-            python-version: 3.7
-            architecture: x64
+It automatically supports dependencies on most pure Python packages. For other
+packages, including those that depend on C code, a special "recipe" must be 
+written to support cross-compiling. python-for-android comes with recipes for
+many of the mosty popular libraries (e.g. numpy and sqlalchemy) built in.
 
-        - name: Push binary to data branch
-          if: github.event_name == 'push'
-          run: python master/.ci/move_binary.py "${{ steps.buildozer.outputs.filename }}" master data bin
-  ```
-</details>
+python-for-android works by cross-compiling the Python interpreter and its
+dependencies for Android devices, and bundling it with the app's python code
+and dependencies. The Python code is then interpreted on the Android device.
 
-## Examples
+It is recommended that python-for-android be used via 
+[Buildozer](https://buildozer.readthedocs.io/), which ensures the correct
+dependencies are pre-installed, and centralizes the configuration. However, 
+python-for-android is not limited to being used with Buildozer.
 
-You can [search GitHub](https://github.com/search?q=buildozer-action+extension%3Ayml+path%3A.github%2Fworkflows&type=Code)
-for repositories that use this action.
+[![Backers on Open Collective](https://opencollective.com/kivy/backers/badge.svg)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/kivy/sponsors/badge.svg)](#sponsors)
+[![GitHub contributors](https://img.shields.io/github/contributors-anon/kivy/python-for-android)](https://github.com/kivy/python-for-android/graphs/contributors)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-Some great examples:
+![PyPI - Version](https://img.shields.io/pypi/v/python-for-android)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/python-for-android)
 
-- [kivymd/KivyMD](https://github.com/kivymd/KivyMD/blob/master/.github/workflows/build-demos.yml)
-  - build several demo apps
-  - push binaries to branch at another repository
-  - push binaries by the account of bot (GitHub user)
-  - set numeric version with environment variable
+[![Unit tests & build apps](https://github.com/kivy/python-for-android/workflows/Unit%20tests%20&%20build%20apps/badge.svg?branch=develop)](https://github.com/kivy/python-for-android/actions?query=workflow%3A%22Unit+tests+%26+build+apps%22)
+[![Coverage Status](https://coveralls.io/repos/github/kivy/python-for-android/badge.svg?branch=develop&kill_cache=1)](https://coveralls.io/github/kivy/python-for-android?branch=develop)
 
-## Inputs
+## Documentation
 
-### `command`
+More information is available in the 
+[online documentation](https://python-for-android.readthedocs.io) including a
+[quickstart guide](https://python-for-android.readthedocs.io/en/latest/quickstart/).
 
-**Required** Command to start Buildozer.
+python-for-android is managed by the [Kivy team](https://kivy.org).
 
-- _Default:_ `buildozer android debug` _(iOS and OSX is not supported because Docker cannot run on MacOS)_.
-- For more commands use `;` as delimiter: `python3 pre_buildozer.py; buildozer android debug`.
+## Support
 
-### `repository_root`
+Are you having trouble using python-for-android or any of its related projects
+in the Kivy ecosystem?
+Is there an error you don’t understand? Are you trying to figure out how to use 
+it? We have volunteers who can help!
 
-**Required** Path to cloned repository.
+The best channels to contact us for support are listed in the latest 
+[Contact Us](https://github.com/kivy/pyton-for-android/blob/master/CONTACT.md)
+document.
 
-- _Default:_ `.` (GitHub workspace).
-- Set to directory name if you specified path for `actions/checkout` action.
+## Code of Conduct
 
-### `workdir`
+In the interest of fostering an open and welcoming community, we as 
+contributors and maintainers need to ensure participation in our project and 
+our sister projects is a harassment-free and positive experience for everyone. 
+It is vital that all interaction is conducted in a manner conveying respect, 
+open-mindedness and gratitude.
 
-**Required** Working directory where buildozer.spec is located.
+Please consult the [latest Code of Conduct](https://github.com/kivy/python-for-android/blob/master/CODE_OF_CONDUCT.md).
 
-- _Default:_ `.` (top directory).
-- Set to `src` if buildozer.spec is in `src` directory.
+## Contributors
 
-### `buildozer_version`
+This project exists thanks to 
+[all the people who contribute](https://github.com/kivy/python-for-android/graphs/contributors).
+[[Become a contributor](CONTRIBUTING.md)].
 
-**Required** Version of Buildozer to install.
+<img src="https://contrib.nn.ci/api?repo=kivy/python-for-android&pages=5&no_bot=true&radius=22&cols=18">
 
-- _Default:_ `stable` (latest release on PyPI, `pip install buildozer`).
-- Set to `master` to use [master](https://github.com/kivy/buildozer/tree/master) branch _(`pip install git+https://github.com/kivy/buildozer.git@master`)_.
-- Set to [tag](https://github.com/kivy/buildozer/tree/1.2.0) name `1.2.0` to use specific release _(`pip install git+https://github.com/kivy/buildozer.git@1.2.0`)_.
-- Set to [commit](https://github.com/kivy/buildozer/tree/94cfcb8) hash `94cfcb8` to use specific commit _(`pip install git+https://github.com/kivy/buildozer.git@94cfcb8`)_.
-- Set to git+ address `git+https://github.com/username/buildozer.git@master` to use fork.
-- Set to directory name `./my_buildozer` to install from local path _(`pip install ./my_buildozer`)_.
-- Set to nothing `''` to not install buildozer
+## Backers
 
-## Outputs
+Thank you to [all of our backers](https://opencollective.com/kivy)! 
+🙏 [[Become a backer](https://opencollective.com/kivy#backer)]
 
-### `filename`
+<img src="https://opencollective.com/kivy/backers.svg?width=890&avatarHeight=44&button=false">
 
-Filename of built package relative to `GITHUB_WORKSPACE`.
+## Sponsors
 
-- Example: `master/test_app/bin/testapp-0.1-armeabi-v7a-debug.apk`
+Special thanks to 
+[all of our sponsors, past and present](https://opencollective.com/kivy).
+Support this project by 
+[[becoming a sponsor](https://opencollective.com/kivy#sponsor)].
 
-## Environment variables
-
-You can set environment variables to change Buildozer settings. See
-[Buildozer Readme](https://github.com/kivy/buildozer#default-config) for more
-information.
-
-Example (change Android architecture):
-
-```yaml
-env:
-  APP_ANDROID_ARCH: armeabi-v7a
-```
-
-## Caching
-
-You can set up cache for Buildozer global and local directories. Global
-directory is in root of repository. Local directory is in workdir.
-
-- Global: `.buildozer-global` (sdk, ndk, platform-tools)
-- Local: `test_app/.buildozer` (dependencies, build temp, _not recommended to cache_)
-
-I don't recommend to cache local buildozer directory because Buildozer doesn't
-automatically update dependencies to latest version.
-
-Use cache only if it speeds up your workflow! Usually this only adds 1-3 minutes
-to job running time, so I don't use it.
-
-Example:
-
-```yaml
-- name: Cache Buildozer global directory
-  uses: actions/cache@v2
-  with:
-    path: .buildozer_global
-    key: buildozer-global-${{ hashFiles('test_app/buildozer.spec') }} # Replace with your path
-```
-
-## Example usage
-
-```yaml
-- name: Build with Buildozer
-  uses: ArtemSBulgakov/buildozer-action@v1
-  id: buildozer
-  with:
-    command: buildozer android debug
-    workdir: src
-    buildozer_version: stable
-```
-
-## Uploading binaries
-
-### As artifact
-
-You can upload binary as artifact to run. You will be able to download it by
-clicking on "Artifacts" button on run page (where you see logs).
-
-```yaml
-- name: Upload artifacts
-  uses: actions/upload-artifact@v2
-  with:
-    name: package
-    path: ${{ steps.buildozer.outputs.filename }}
-```
-
-### To branch
-
-Artifacts use GitHub Storage and you have to pay for private repositories when
-limit exceeded. Another way to upload binary is pushing it to branch in your
-repository.
-
-Copy [.ci/move_binary.py](.ci/move_binary.py) script, edit it if you want and
-add this to your workflow:
-
-```yaml
-- name: Checkout
-  uses: actions/checkout@v2
-  with:
-    path: data
-    ref: data # Branch name
-
-- name: Set up Python
-  uses: actions/setup-python@v2
-  with:
-    python-version: 3.7
-    architecture: x64
-
-- name: Push binary to data branch
-  if: github.event_name == 'push'
-  run: python master/.ci/move_binary.py "${{ steps.buildozer.outputs.filename }}" master data bin
-```
-
-Also you need to create `data` branch:
-```bash
-git checkout --orphan data
-echo # Branch `data` > README.md
-git add README.md
-git commit -m "Add Readme"
-git push origin data
-```
-
-## Action versioning
-
-Currently it is recommended to use `v1` tag. This tag updates when new `v1.x.x`
-version released. All `v1` versions will have backward compatibility. You will
-get warning when `v2` will be released.
-
-## How to build packages locally
-
-Use official Buildozer's [Docker image](https://hub.docker.com/r/kivy/buildozer)
-([repository](https://github.com/kivy/buildozer#buildozer-docker-image)).
-
-## Contributing
-
-Create Bug Request if you have problems with running this action or
-Feature Request if you have ideas how to improve it. If you know how to fix
-something, feel free to fork repository and create Pull Request. Test your
-changes in fork before creating Pull Request.
-
-Format python files:
-```bash
-pip install pre-commit
-pre-commit install
-
-# Format all files
-pre-commit run --all-files
-```
-
-## License
-
-ArtemSBulgakov/buildozer-action is released under the terms of the
-[MIT License](LICENSE).
+Here are our top current sponsors. Please click through to see their websites,
+and support them as they support us. 
+
+<!--- See https://github.com/orgs/kivy/discussions/15 for explanation of this code. -->
+<a href="https://opencollective.com/kivy/sponsor/0/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/1/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/2/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/3/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/3/avatar.svg"></a>
+
+<a href="https://opencollective.com/kivy/sponsor/4/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/5/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/6/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/7/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/7/avatar.svg"></a>
+
+<a href="https://opencollective.com/kivy/sponsor/8/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/9/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/9/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/10/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/10/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/11/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/11/avatar.svg"></a>
+
+<a href="https://opencollective.com/kivy/sponsor/12/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/12/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/13/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/13/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/14/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/14/avatar.svg"></a>
+<a href="https://opencollective.com/kivy/sponsor/15/website" target="_blank"><img src="https://opencollective.com/kivy/sponsor/15/avatar.svg"></a>
