@@ -158,7 +158,12 @@ public class PythonActivity extends Activity {
             String app_root_dir = getAppRoot();
 
             mWebView = new WebView(PythonActivity.mActivity);
-            mWebView.setOverScrollMode(2); //dealing with the bouncing effect
+            //dealing with the bouncing effect
+            mWebView.setOverScrollMode(2); 
+            //hide the f** scrollbar
+            webView.setVerticalScrollBarEnabled(false);
+            webView.setHorizontalScrollBarEnabled(false);
+            //resto de cosas predefinidas
             mWebView.getSettings().setJavaScriptEnabled(true);
             mWebView.getSettings().setDomStorageEnabled(true);
             mWebView.loadUrl("file:///android_asset/_load.html");
