@@ -161,7 +161,7 @@ public class PythonActivity extends Activity {
             //dealing with the bouncing effect
             mWebView.setOverScrollMode(2); 
             //hide the f** scrollbar
-            webView.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
+            mwebView.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
             //resto de cosas predefinidas
             mWebView.getSettings().setJavaScriptEnabled(true);
             mWebView.getSettings().setDomStorageEnabled(true);
