@@ -162,7 +162,7 @@ public class PythonActivity extends Activity {
             mWebView.setOverScrollMode(2); 
             //hide the f** scrollbar
             mWebView.setScrollBarStyle(0);
-            mWebView.setVerticalScrollBarEnabled(false)
+            mWebView.setVerticalScrollBarEnabled(false);
             //resto de cosas predefinidas
             mWebView.getSettings().setJavaScriptEnabled(true);
             mWebView.getSettings().setDomStorageEnabled(true);
